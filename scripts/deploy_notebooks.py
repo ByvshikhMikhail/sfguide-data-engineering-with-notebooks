@@ -1,3 +1,5 @@
+# Fix notebook project deploy to drop and recreate when source location changes
+# Co-authored with CoCo
 #------------------------------------------------------------------------------
 # Hands-On Lab: Intro to Data Engineering with Notebooks
 # Script:       deploy_notebooks.py
@@ -35,8 +37,9 @@ def main(session: Session, database_name: str, schema_name: str, notebook_projec
     stage_path = session_stage
 
     if project_exists:
-        print(f"Notebook project exists, adding new version...")
-        session.sql(f"ALTER NOTEBOOK PROJECT {full_project_name} ADD VERSION FROM '{stage_path}'").collect()
+        print(f"Notebook project exists, dropping and recreating from new source...")
+        session.sql(f"DROP NOTEBOOK PROJECT {full_project_name}").collect()
+        session.sql(f"CREATE NOTEBOOK PROJECT {full_project_name} FROM '{stage_path}'").collect()
     else:
         print(f"Creating new notebook project...")
         session.sql(f"CREATE NOTEBOOK PROJECT {full_project_name} FROM '{stage_path}'").collect()
